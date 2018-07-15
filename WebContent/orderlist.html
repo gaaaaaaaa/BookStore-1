@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link type="text/css" rel="stylesheet" href="css/style.css" />
+<script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+<script type="text/javascript" src="js/logout.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+
+</head>
+<body>
+	<div id="header" class="wrap">
+		<div id="logo">网上书城</div>
+		<div id="navbar">
+			<div class="userMenu">
+				<ul>
+					<li><a href="home.html">首页</a></li>
+					<li class="current"><a href="orderlist.html">我的订单</a></li>
+					<li><a href="shopping.html">购物车</a></li>
+					<li><a href="login.html" onclick="logout()">注销</a></li>
+				</ul>
+			</div>
+			<form method="get" name="search" action="">
+				搜索：<input class="input-text" type="text" name="keywords" /><input
+					class="input-btn" type="submit" name="submit" value="" />
+			</form>
+		</div>
+	</div>
+	<div id="content" class="wrap">
+		<div class="list orderList">
+			<table>
+				<tr class="title">
+					<th class="orderId">订单编号</th>
+					<th>订单商品</th>
+					<th class="userName">收货人</th>
+					<th class="price">订单金额</th>
+					<th class="createTime">下单时间</th>
+					<th class="status">订单状态</th>
+				</tr>
+				<tbody id="tbid"></tbody>
+			</table>
+			<div class="page-spliter"></div>
+			<!-- <div class="button"><input class="input-gray" type="submit" name="submit" value="查看一个月前的订单" /><input class="input-gray" type="submit" name="submit" value="查看一个月前的订单" /></div> -->
+		</div>
+	</div>
+	<div id="footer" class="wrap">马中行-刘帅-庞永-马福洲 &copy; 版权所有</div>
+
+	<script type="text/javascript">
+	$(function(){
+		loadData(1, state=5);
+	})
+	function loadData(page, state=5){
+		$.ajax({
+			type:"get",
+			url:"orders/page/" + page,
+			data:{"state":state},
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					var infos = data.msg.pageInfos;
+					$("#tbid").empty();
+					var oid = infos[0].order.orderNum;
+					var total = 0.0;
+					var totalIndex = infos.length - 1;
+					$(infos).each(function(index, item){
+						var html = '';
+						if(oid != item.order.orderNum){
+							html += '<tr>';
+							html += '<td colspan="6" align="right">';
+							html += '总计金额：￥' + total;
+							if(infos[index-1].order.state == 0){
+								html += '<button disabled="disabled">等待发货</button>';
+							}else if(infos[index-1].order.state == 1){
+								html += '<button onclick="updateState('+ (index-1) +', '+ page +')">确认收货</button>';
+							}else if(infos[index-1].order.state == 2){
+								html += '<button disabled="disabled">订单完成</button><button id="retId' + (index-1) + '" onclick="updateState('+ (index-1) +', '+ page +')">退货</button>';
+							}else if(infos[index-1].order.state == 3){
+								html += '<button disabled="disabled">等待退货</button>';
+							}else if(infos[index-1].order.state == 4){
+								html += '<button disabled="disabled">退货成功</button>';
+							}
+							html += '</td></tr>';
+							total = 0.0;
+							oid = item.order.orderNum;
+						}
+						
+						total += item.book.price * item.num;
+						html += '<tr>';
+						html += '<td id="oid' + index + '">' + item.order.orderNum + '</td>';
+						html += '<td class="thumb"><img src="' + item.book.img + '" /></td>';
+						html += '<td>' + item.order.buyer.userName + '</td>';
+						html += '<td>' + item.book.price + ' x ' + item.num + '</td>';
+						html += '<td>' + item.order.createDate + '</td>';
+						
+						if(item.order.state == 0){
+							html += '<td>未发货</td>';
+						}else if(item.order.state == 1){
+							html += '<td>已发货未签收</td>';
+						}else if(item.order.state == 2){
+							html += '<td>已签收</td>';
+						}else if(item.order.state == 3){
+							html += '<td>正在退货</td>';
+						}else{
+							html += '<td>已退货</td>';
+						}
+						
+						if(totalIndex == index){
+							html += '<tr>';
+							html += '<td colspan="6" align="right">';
+							html += '总计金额：￥' + total;
+							if(item.order.state == 0){
+								html += '<button disabled="disabled">等待发货</button>';
+							}else if(item.order.state == 1){
+								html += '<button onclick="updateState('+ index +', '+ page +')">确认收货</button>';
+							}else if(item.order.state == 2){
+								html += '<button disabled="disabled">订单完成</button><button id="retId' + index + '" onclick="updateState('+ index +', '+ page +')">退货</button>';
+							}else if(item.order.state == 3){
+								html += '<button disabled="disabled">等待退货</button>';
+							}else if(item.order.state == 4){
+								html += '<button disabled="disabled">退货成功</button>';
+							}
+							html += '</td></tr>';
+						}
+						
+						$("#tbid").append($(html));
+					})
+					
+		    		pagebind(data.msg, state);
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+
+<script type="text/javascript">
+	function updateState(index, page){
+		var odex = 'oid' + index;
+		$.ajax({
+			type:"put",
+			url:"update?oid=" + document.getElementById(odex).innerHTML,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					loadData(page, 5);
+					var bdex = 'retId' + index;
+					document.getElementById(bdex).disabled=true;
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+
+</body>
+</html>

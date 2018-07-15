@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>订单详情</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="style/adminStyle.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+
+</head>
+<body>
+ <div class="wrap">
+  	<div id="user-info-id"></div>
+   <dd>
+    <table class="list-style">
+     <tr>
+      <th>缩略图</th>
+      <th>产品</th>
+      <th>单价</th>
+      <th>数量</th>
+      <th>小计</th>
+     </tr>
+		<tbody id="order-info-id"></tbody>
+
+    </table>
+   </dd>
+<!--    <dd> -->
+<!--     <table class="noborder"> -->
+<!--      <tr> -->
+<!--       <td width="10%" style="text-align:right;"><b>管理员操作：</b></td> -->
+<!--       <td> -->
+<!--        <textarea class="block" style="width:80%;height:35px;outline:none;"></textarea> -->
+<!--       </td> -->
+<!--      </tr> -->
+<!--     </table> -->
+<!--    </dd> -->
+<!--    <dd> -->
+<!--       Operation -->
+<!-- 	  <div class="BatchOperation"> -->
+<!-- 	   <input type="button" value="打印订单" class="btnStyle"/> -->
+<!-- 	   <input type="button" value="配送" class="btnStyle"/> -->
+<!-- 	   <input type="button" value="发货" class="btnStyle"/> -->
+<!-- 	   <input type="button" value="取消订单" class="btnStyle"/> -->
+<!-- 	  </div> -->
+<!--    </dd> -->
+  </dl>
+ </div>
+ 
+ <script type="text/javascript">
+ $(function(){
+	 var id = location.search.substring(1);
+	 //window.history.back(-1);
+	$.ajax({
+		type:"get",
+		url:"detail?id=" + id,
+		dataType:"json",
+		success:function(data){
+			if(data.code == 1){
+				var info = data.msg;
+				var html ='';
+				$("#user-info-id").empty();
+				html += '<div class="page-title">';
+				html += '<span class="modular fl"><i class="order"></i><em>订单编号：' + info[0].order.orderNum + '</em></span>';
+				html += '</div>';
+				html += '<dl class="orderDetail">';
+				html += '<dt class="order-h">订单详情</dt>';
+				html += '<dd>';
+				html += '<ul>';
+				html += '<li>';
+				html += '<span class="h-cont h-right">收件人姓名：</span>';
+				html += '<span class="h-cont h-left">' + info[0].order.buyer.userName + '</span>';
+				html += '</li>';
+				html += '<li>';
+				html += '<span class="h-cont h-right">联系电话：</span>';
+				html += '<span class="h-cont h-left">15825518194</span>';
+				html += '</li>';
+				html += '<li>';
+				html += '<span class="h-cont h-right">联系地址：</span>';
+				html += '<span class="h-cont h-left">陕西省西安市未央区220号</span>';
+				html += '</li>';
+				html += '<li>';
+				html += '<span class="h-cont h-right">付款状态：</span>';
+				html += '<span class="h-cont h-left">未付款</span>';
+				html += '</li>';
+				html += '<li>';
+				html += '<span class="h-cont h-right">下单时间：</span>';
+				html += '<span class="h-cont h-left">' + info[0].order.createDate + '</span>';
+				html += '</li>';
+// 				html += '<li>';
+// 				html += '<span class="h-cont h-right">付款时间：</span>';
+// 				html += '<span class="h-cont h-left">2015-04-18 13:35</span>';
+// 				html += '</li>';
+				html += '</ul>';
+				html += '</dd>';
+				html += '<dd style="padding:1em 0;">';
+				html += '<span><b>订单留言：</b></span>';
+				html += '<span>...这里是用户留言信息...</span>';
+				html += '</dd>';
+				$("#user-info-id").append(html);
+				
+				$("#order-info-id").empty();
+				var total = 0.0;
+				$(info).each(function(index, item) {
+					html = '';
+					html += '<tr>';
+					html += '<td><img src="' + item.book.img + '" class="thumbnail"/></td>';
+					html += '<td>' + item.book.bookName + '</td>';
+					html += '<td>';
+					html += '<span>';
+					html += ' <i>￥</i>';
+					html += '  <em>'+ item.book.price + '</em>';
+					html += ' </span>';
+					html += ' </td>';
+					html += ' <td>' + item.num + '</td>';
+					html += ' <td>';
+					html += '  <span>';
+					html += '  <i>￥</i>';
+					html += '  <em>'+ (item.book.price * item.num)+ '</em>';
+					html += '  </span>';
+					html += ' </td>';
+					html += '</tr>';
+					$("#order-info-id").append(html);
+					total += item.book.price * item.num;
+				})
+				html = '';
+				html += '<tr>';
+				html += '<td colspan="5">';
+				html += '<div class="fr">';
+				html += ' <span style="font-size:15px;font-weight:bold;">';
+				html += '<i>订单共计金额：￥</i>';
+				html += '<b>' + total + '</b>';
+				html += '</span>';
+				html += '</div>';
+				html += '</td>';
+				html += '</tr>';
+				$("#order-info-id").append(html);
+			} else {
+				lert(data.msg);
+			}
+		}
+	})
+})
+	</script>
+</body>
+</html>

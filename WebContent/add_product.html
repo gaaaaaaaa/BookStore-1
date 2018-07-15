@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>图书列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="js/jquery.form.min.js"></script>
+	<link href="style/adminStyle.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<div class="wrap">
+
+		<div class="page-title">
+			<span class="modular fl"><i class="add"></i><em>添加图书</em></span> <span
+				class="modular fr"><a href="product_list.html"
+				class="pt-link-btn">图书列表</a></span>
+		</div>
+
+
+		<form id="addBookForm" method="post" enctype="multipart/form-data" onsubmit="return false;">
+			
+			<table class="list-style">
+
+				<tr>
+					<td style="text-align: right; width: 15%;">图书名称：</td>
+					<td><input type="text" class="input-text" name="bookName"/></td>
+				</tr>
+
+				<tr>
+					<td style="text-align: right;">价格：</td>
+					<td><input type="text" class="input-text" name="price"/> <span>元</span>
+					</td>
+				</tr>
+
+				<tr>
+					<td style="text-align: right;">库存：</td>
+					<td><input type="text" class="input-text" name="stock"/> <span>本</span>
+					</td>
+				</tr>
+
+				<tr>
+					<td style="text-align: right;">图书图片：</td>
+					<td>
+						<input type="file" name="imgfile" multiple="multiple" id="imgfile" /> 
+						<img id="img_preview" data-src="" src="" data-holder-rendered="true" style="width: 100px; display: block;"/>
+					</td>
+				</tr>
+
+
+				<tr>
+					<td style="text-align: right;"></td>
+					<td><input type="submit" value="发布图书" class="tdBtn" /></td>
+				</tr>
+
+			</table>
+			
+		</form>
+		
+	</div>
+	<script type="text/javascript">
+		$("#addBookForm").validate({
+			submitHandler: function(form) {
+				$(form).ajaxSubmit({
+					type:"post",
+						url:"addBook",
+						data:$("#addBookForm").serialize(),
+						dataType:"json",
+				    	success:function(data){
+				    		window.location.href="product_list.html";
+					}
+				});
+			},
+			rules: {
+				bookName: "required",
+				price: {
+					required: true,
+					number: true
+				},
+				stock: {
+					required: true,
+					digits: true
+				}
+			},
+			messages: {
+				bookName: "(书名必须输入)",
+				price: {
+					required: "(价格必须输入)",
+					number: "(请输入数字)"
+				},
+				stock: {
+					required: "(库存必须输入)",
+					digits: "(库存必须为整数)"
+				}
+			}
+		});
+	</script>
+
+	<script>
+		//上传图片选择文件改变后刷新预览图
+		$("#imgfile").change(function(e) {
+			//获取目标文件
+			var file = e.target.files || e.dataTransfer.files;
+			//如果目标文件存在
+			if (file) {
+				//定义一个文件阅读器
+				var reader = new FileReader();
+				//文件装载后将其显示在图片预览里
+				reader.onload = function() {
+					$("#img_preview").attr("src", this.result);
+				}
+				//装载文件
+				reader.readAsDataURL(file[0]);
+			}
+		});
+	</script>
+</body>
+</html>

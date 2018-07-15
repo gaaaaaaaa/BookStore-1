@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>订单列表</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="style/adminStyle.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script src="js/public.js"></script>
+</head>
+<body>
+	<div class="wrap">
+		<div class="page-title">
+			<span class="modular fl"><i class="order"></i><em>订单列表</em></span>
+		</div>
+		<div class="operate center BatchOperation">
+			<input type="button" value="全部订单" onclick="loadData(1, 5)" class="btnStyle" /> 
+			<input type="button" value="未发货" onclick="loadData(1, 0)" class="btnStyle" /> 
+			<input type="button" value="已发货" onclick="loadData(1, 1)" class="btnStyle" /> 
+			<input type="button" value="已完成" onclick="loadData(1, 2)" class="btnStyle" /> 
+			<input type="button" value="需退货" onclick="loadData(1, 3)" class="btnStyle" />
+			<input type="button" value="已退货" onclick="loadData(1, 4)" class="btnStyle" /> 
+		</div>
+		<table class="list-style Interlaced">
+			<tr>
+				<th>订单编号</th>
+				<th>下单时间</th>
+				<th>收件人</th>
+				<th>订单金额</th>
+				<th>订单状态</th>
+				<th>管理员操作</th>
+			</tr>
+			<tbody id="tbid"></tbody>
+		</table>
+		<div class="page-spliter center"></div>
+	</div>
+
+	<script type="text/javascript">
+	$(function(){
+		loadData(1, state=5);
+	})
+	function loadData(page, state){
+		$.ajax({
+			type:"get",
+			url:"orders/page/" + page,
+			data:{"state":state},
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					var infos = data.msg.pageInfos;
+					$("#tbid").empty();
+					var oid = infos[0].order.orderNum;
+					var totalIndex = infos.length - 1;
+					$(infos).each(function(index, item){
+						var html = '';
+						if(oid != item.order.orderNum){
+							html += '<tr>';
+							html += '<td><a id="oid' + (index-1) +'" onclick="orderDetail(' + (index-1) + ')">' + infos[index-1].order.orderNum + '</a></td>';
+							html += '<td class="center"><span class="block">' + infos[index-1].order.createDate + '</span></td>';
+							html += '<td width="450"><span class="block">' + infos[index-1].order.buyer.userName + '</span></td>';
+//	 						手机号、地址
+							html += '<td class="center"><span><i>￥</i><b>' + infos[index-1].order.totalPrice + '</b></span></td>';
+						  
+							if(infos[index-1].order.state == 0){
+								html += '<td id="sta1Id' + (index-1) + '" class="center">未发货</td>';
+								html += '<td class="center"><input id="psId' + (index-1) + '" type="button" value="发货" onclick="updatePro('+ (index-1) +', 0)" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ (index-1) +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index-1].order.state == 1){
+								html += '<td class="center">已发货但未签收</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ (index-1) +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index-1].order.state == 2){
+								html += '<td class="center">已签收</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ (index-1) +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index-1].order.state == 3){
+								html += '<td id="sta2Id' + (index-1) + '" class="center">需退货</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input id="plId' + (index-1) + '" type="button" value="退货" onclick="updatePro('+ (index-1) +', 3)" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ (index-1) +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index-1].order.state == 4){
+								html += '<td class="center">已退货</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ (index-1) +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}
+							
+							$("#tbid").append($(html));
+							html = '';
+							oid = infos[index].order.orderNum;
+						}
+						
+						if(index == totalIndex){
+							html += '<tr>';
+							html += '<td><a id="oid' + index + '" onclick="orderDetail(' + index + ')">' + infos[index].order.orderNum + '</a></td>';
+							html += '<td class="center"><span class="block">' + infos[index].order.createDate + '</span></td>';
+							html += '<td width="450"><span class="block">' + infos[index].order.buyer.userName + '</span></td>';
+//	 						手机号、地址
+							html += '<td class="center"><span><i>￥</i><b>' + infos[index].order.totalPrice + '</b></span></td>';
+							
+							if(infos[index].order.state == 0){
+								html += '<td id="sta1Id' + index + '" class="center">未发货</td>';
+								html += '<td class="center"><input id="psId' + index + '" type="button" value="发货" onclick="updatePro('+ index +', 0)" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ index +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index].order.state == 1){
+								html += '<td class="center">已发货但未签收</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ index +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index].order.state == 2){
+								html += '<td class="center">已签收</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ index +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index].order.state == 3){
+								html += '<td id="sta2Id' + index + '" class="center">需退货</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input id="plId' + index + '" type="button" value="退货" onclick="updatePro('+ index +', 3)" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ index +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}else if(infos[index].order.state == 4){
+								html += '<td class="center">已退货</td>';
+								html += '<td class="center"><input type="button" disabled="disabled" value="发货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" disabled="disabled" value="退货" class="btnStyle" />';
+								html += '<span> </span>';
+								html += '<input type="button" value="删除订单" onclick="delPro('+ index +', ' + page + ', ' + state + ')" class="btnStyle" /></td>';
+							}
+							$("#tbid").append($(html));
+						}
+					})
+		    		pagebind(data.msg, state);
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+
+<script type="text/javascript">
+	function orderDetail(index){
+		var odex = 'oid' + index;
+		var id = document.getElementById(odex).innerHTML;
+		var url = "order_detail.html?" + id;
+		window.location.href=url;
+	}
+</script>
+<script type="text/javascript">
+	function updatePro(index, state){
+		var odex = 'oid' + index;
+		$.ajax({
+			type:"put",
+			url:"update?oid=" + document.getElementById(odex).innerHTML,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					if(state == 0){
+						var sdex = 'sta1Id' + index;
+						var bdex = 'psId' + index;
+						document.getElementById(sdex).innerHTML='<td class="center">已发货但未签收</td>';
+						document.getElementById(bdex).disabled=true;
+					}else if(state == 3){
+						var sdex = 'sta2Id' + index;
+						var bdex = 'plId' + index;
+						document.getElementById(sdex).innerHTML='<td class="center">已退货</td>';
+						document.getElementById(bdex).disabled=true;
+					}
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+<script type="text/javascript">
+	function delPro(index, page, state){
+		var odex = 'oid' + index;
+		$.ajax({
+			type:"delete",
+			url:"delete?oid=" + document.getElementById(odex).innerHTML,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					loadData(page, state);
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+</body>
+</html>

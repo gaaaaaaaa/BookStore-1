@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>产品列表</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="style/adminStyle.css" rel="stylesheet" type="text/css" />
+<script src="js/jquery-1.12.2.min.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/public.js"></script>
+</head>
+
+<body>
+ <div class="wrap">
+  <div class="page-title">
+    <span class="modular fl"><i></i><em>产品列表</em></span>
+  </div>
+  <div class="operate">
+   <form>
+    <input type="text" class="textBox length-long" placeholder="输入图书名称..."/>
+    <input type="button" value="查询" class="tdBtn"/>
+   </form>
+  </div>
+  <table class="list-style Interlaced">
+   <tr>
+    <th>ID编号</th>
+    <th>产品</th>
+    <th>名称</th>
+    <th>市场价</th>
+    <th>库存</th>
+    <th>操作</th>
+   </tr>
+   
+   <tbody id = "tbp"></tbody>
+   
+  </table>
+  <!-- BatchOperation -->
+  <input type="button" value = "显示删除图书" class = "tdBtn" onclick="loadDelData(1)"></input>
+  <input type="button" value = "显示所有图书" class = "tdBtn" onclick="loadData(1)"></input>
+  <div style="overflow:hidden;">
+	  <!-- turn page -->
+	  <div class="page-spliter center">
+	  </div>
+  </div>
+ </div>
+ 
+<script type="text/javascript">
+
+	$(function(){
+		loadData(1);
+	})
+
+	function loadData(page){
+		$.ajax({
+			type:"get",
+			url:"books/page/" + page,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1 ) {
+					$("#tbp").empty();
+					var info = data.msg.pageInfos;
+					$(info).each(function(index, item){
+						var html = '';
+						html += '<tr><td class="center"><span>';
+						html += '<i id="bid' + index + '">'+item.id+'</i></span></td>';
+						html += '<td class="center pic-area"><img src="'+item.img+'" class="thumbnail"/></td>';
+						html += '<td class="td-name">';
+						html += '<span class="ellipsis td-name block">'+item.bookName+'</span></td>';
+						html += '<td class="center"><span>';
+						html += '<i>￥</i>';
+						html += '<em>'+item.price+'</em></span></td>';
+						html += '<td class="center">';
+						html += '<span><em>'+item.stock+'</em><i>件</i></span>';
+						html += '</td>';
+						html += '<td class="center">';
+						html += '<a href="edit_product.html?'+item.id+'" title="编辑图书" ><span>编辑图书</span></a>';
+						html += '<a onclick="delBook(' + index + ')"> 删除图书  </a>'
+						html += '</td></tr>';
+						
+						$("#tbp").append($(html));
+					})
+					pagebind(data.msg);
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+
+</script>
+
+<script type="text/javascript">
+
+	
+	function loadDelData(page){
+		$.ajax({
+			type:"get",
+			url:"delbooks/page/" + page,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1) {
+					$("#tbp").empty();
+					var info = data.msg.pageInfos;
+					$(info).each(function(index, item){
+						var html = '';
+						html += '<tr><td class="center"><span>';
+						html += '<i id="bid' + index + '">'+item.id+'</i></span></td>';
+						html += '<td class="center pic-area"><img src="'+item.img+'" class="thumbnail"/></td>';
+						html += '<td class="td-name">';
+						html += '<span class="ellipsis td-name block">'+item.bookName+'</span></td>';
+						html += '<td class="center"><span>';
+						html += '<i>￥</i>';
+						html += '<em>'+item.price+'</em></span></td>';
+						html += '<td class="center">';
+						html += '<span><em>'+item.stock+'</em><i>件</i></span>';
+						html += '</td>';
+						html += '<td class="center">';
+						html += '<a href="edit_product.html" title="编辑图书" ><span>编辑图书</span></a>';
+						html += '</td></tr>';
+						
+						$("#tbp").append($(html));
+					})
+					pagedelbind(data.msg);
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+	
+</script>
+
+<script type="text/javascript">
+	
+	function pagedelbind(info){
+		$(".page-spliter").empty();
+		
+		var html = '';
+		//前一页
+		var prePage = info.currentPage - 1;
+		if(prePage <= 0){
+			//html += '<a href="javascript:loadData(1)"></a>';
+		}else{
+			html += '<a href="javascript:loadDelData(' + prePage + ')" >&lt;</a>';
+		}
+		
+		html += '<a href="javascript:loadDelData(1)">首页</a>';
+		
+		//当前页
+		for(var i = 1; i <= info.totalPage; i++){
+			if(i == info.currentPage){
+				html += '<span class="current">' + i + '</span>';
+			}else{
+				html += '<a href="javascript:loadDelData(' + i + ')"> ' + i + ' </a>';
+			}
+		}
+		
+		html += '<a href="javascript:loadDelData(' + info.totalPage + ')">尾页</a>';
+		
+		//下一页
+		var nextPage = info.currentPage + 1;
+		if(nextPage > info.totalPage){
+		//	html += '<a href="javascript:loadData(' + info.totalPage + ')"></a>';
+		}else{
+			html += '<a href="javascript:loadDelData(' + nextPage + ')">&gt;</a>';
+		}
+		
+		$(".page-spliter").append($(html));
+	
+	}
+
+	function pagebind(info){
+		$(".page-spliter").empty();
+		
+		var html = '';
+		//前一页
+		var prePage = info.currentPage - 1;
+		if(prePage <= 0){
+			//html += '<a href="javascript:loadData(1)"></a>';
+		}else{
+			html += '<a href="javascript:loadData(' + prePage + ')" >&lt;</a>';
+		}
+		
+		html += '<a href="javascript:loadData(1)">首页</a>';
+		
+		//当前页
+		for(var i = 1; i <= info.totalPage; i++){
+			if(i == info.currentPage){
+				html += '<span class="current">' + i + '</span>';
+			}else{
+				html += '<a href="javascript:loadData(' + i + ')"> ' + i + ' </a>';
+			}
+		}
+		
+		html += '<a href="javascript:loadData(' + info.totalPage + ')">尾页</a>';
+		
+		//下一页
+		var nextPage = info.currentPage + 1;
+		if(nextPage > info.totalPage){
+		//	html += '<a href="javascript:loadData(' + info.totalPage + ')"></a>';
+		}else{
+			html += '<a href="javascript:loadData(' + nextPage + ')">&gt;</a>';
+		}
+		
+		$(".page-spliter").append($(html));
+
+	}
+</script>
+ 
+<script type="text/javascript">
+	function delBook(index){
+		var ddex = 'bid' + index;
+		var bid = document.getElementById(ddex).innerHTML;
+		$.ajax({
+			type:"delete",
+			url:"deleteBookManage/" + bid,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1) {
+					loadData(1);
+				}else{
+					alert("删除失败");
+				}
+			}
+		})
+	}
+</script>
+</body>
+
+
+
+</html>

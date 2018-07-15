@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qianfeng.dao.IOrderDao" >
+	<resultMap type="orders" id="orderMapper">
+		<id property="id" column ="id"/>
+		<result property = "orderNum" column = "ordernum"/>
+		<result property = "totalPrice" column = "totalprice"/>
+		<result property = "state" column = "state"/>
+		<result property = "createDate" column = "createdate"/>
+		<!-- asssociation 体现表之间的一对一关系 -->
+		<association property="buyer" resultMap="com.qianfeng.dao.IUserDao.userMapper"></association>		
+	</resultMap>
+
+	<!-- 获取自增的id，针对mysql sqlserver -->
+	<insert id="add" parameterType="orders" useGeneratedKeys="true" keyProperty="id">
+		insert into orders(ordernum, totalprice, createdate, state, buyerId)
+		values(#{orderNum}, #{totalPrice}, #{createDate}, 0, #{buyer.id})
+	</insert>
+	
+	<select id="countOrder" parameterType="String" resultType="Integer">
+		select count(1) from orders o
+		INNER JOIN user u
+		on o.buyerId = u.id
+		where buyerId in(select id from user where username = #{name})
+	</select>
+	
+	<select id="findByOrderNum" resultMap="orderMapper">
+		select * from orders
+		where ordernum = #{id}
+	</select>
+	
+	<update id="updateState" parameterType="string">
+		update orders
+		set orders.state = orders.state+1
+		where ordernum = #{id}
+	</update>
+	
+	<delete id="deleteByName" parameterType="string">
+		delete from orders
+		where orders.buyerId in(
+		select id from user 
+		where user.username = #{name}
+		)
+	</delete>
+	<delete id="deleteByOrderNum" parameterType="string">
+		delete from orders
+		where orders.ordernum = #{id}
+	</delete>
+	
+</mapper>

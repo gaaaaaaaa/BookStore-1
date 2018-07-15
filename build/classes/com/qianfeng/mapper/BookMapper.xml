@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qianfeng.dao.IBookDao">
+	
+	<resultMap type="books" id="bookMapper">
+		<id property="id" column="id"/>
+		<result property="bookName" column="bookname"/>
+		<result property="price" column="price" />
+		<result property="stock" column="stock"/>
+		<result property="img" column="img" />
+	</resultMap>
+	
+	<select id="findAll" resultMap="bookMapper">
+		select * from books
+	</select>
+	
+	<select id="findByIndex" parameterType="map" resultMap="bookMapper">
+		select id, bookname, price, stock, img from books limit #{index}, #{size}
+	</select>
+	
+	<select id="findDelByIndex" parameterType="map" resultMap="bookMapper">
+		select * from books where books.isdelete = 1 limit #{index}, #{size}  
+	</select>
+	
+	
+	<select id="findByIds" parameterType="list" resultMap="bookMapper">
+		select id, bookname, price, stock, img from books where id in 
+		<foreach collection="list" item="i" open="(" close=")" separator=",">
+			#{i}
+		</foreach>
+	</select>
+	
+	<select id="countBook" resultType="int">
+		select count(1) from books
+	</select>
+	
+	<select id="countDelBook" resultType="Integer">
+		select count(1) from books where books.isdelete = 1
+	</select>
+	
+	<select id="findStockById" parameterType="int" resultType="int">
+		select stock from books where id = #{id}
+	</select>
+	
+	<update id="deleteById" parameterType="int">
+		update books set books.isdelete = 1 where books.id = #{id}
+	</update>
+	
+	<select id="findByName" parameterType="string" resultMap="bookMapper">
+		select id, price, stock, img from books where bookname = #{bookName}
+	</select>
+	
+	<update id="updateStock" parameterType="map">
+		update books set books.stock = books.stock - #{num} where books.id = #{id}
+	</update>
+	
+	<insert id="add" parameterType="Books">
+		insert into books(bookname,price,stock,img) values(#{bookName}, #{price}, #{stock}, #{img})
+	</insert>
+	
+	<update id="update" parameterType="Books">
+		update books b set b.bookname=#{bookName}, b.price=#{price}, b.stock=#{stock}, b.img=#{img} where b.id=#{id};
+	</update>
+</mapper>

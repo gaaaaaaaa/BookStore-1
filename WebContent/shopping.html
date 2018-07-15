@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link type="text/css" rel="stylesheet" href="css/style.css" />
+<script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.validate.min.js"></script>
+
+<script type="text/javascript" src="js/logout.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+
+</head>
+<body>
+	<div id="header" class="wrap">
+		<div id="logo">网上书城</div>
+		<div id="navbar">
+			<div class="userMenu">
+				<ul>
+					<li><a href="home.html">首页</a></li>
+					<li><a href="orderlist.html">我的订单</a></li>
+					<li class="current"><a href="shopping.html">购物车</a></li>
+					<li><a href="login.html" onclick="logout()">注销</a></li>
+				</ul>
+			</div>
+			<form method="get" name="search" action="">
+				搜索：<input class="input-text" type="text" name="keywords" /><input
+					class="input-btn" type="submit" name="submit" value="" />
+			</form>
+		</div>
+	</div>
+	<div id="content" class="wrap">
+		<div class="list bookList">
+			<form id="orderId" method="post" name="shopping" action="shopping-success.html" onsubmit="return false;">
+				<table>
+					<tr class="title">
+						<th class="view">图片预览</th>
+						<th>书名</th>
+						<th class="nums">数量</th>
+						<th class="price">价格</th>
+					</tr>
+					<tbody id="tbid"></tbody>
+
+				</table>
+				<div id="sumid" class="button"></div>
+			</form>
+		</div>
+	</div>
+	<div id="footer" class="wrap">马中行-刘帅-庞永-马福洲 &copy; 版权所有</div>
+
+	<script type="text/javascript">
+	var count = 0;
+	var total = 0.0;
+	$(function(){
+		$.ajax({
+			type:"get",
+			url:"getcarts",
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					var infos = data.msg;
+					total = 0.0;
+ 					count = 0;
+					$("#tbid").empty();
+					$(infos).each(function(index, item){
+						var html = '';
+						if(index % 2 == 0){
+							html += '<tr class="odd">';
+						}else{
+							html += '<tr>';
+						}
+						html += '<input id="id' + index + '" type="hidden" name="ids" value="' + item.id + '"/>';
+						html += '<td class="thumb"><img src="' + item.img + '" /></td>';
+						html += '<td class="title" id="name' + index + '">' + item.bookName + '</td>';
+						html += '<td><input id="num' + index + '" class="input-text" type="text" name="nums" value="1" onblur="flush(getCount(), ' + index + ')"/></td>';
+						html += '<td><span id="price' + index + '">' + item.price +'</span></td>';
+						html += '</tr>';
+
+						$("#tbid").append($(html));
+						total += item.price;
+						count++;
+					})
+					foot();
+				}
+			}
+		})
+	});	
+</script>
+
+<script type="text/javascript">
+	function getCount(){
+		return count;
+	}
+</script>
+<script type="text/javascript">
+	function flush(count, index){
+		var ndex = 'num' + index;
+		var idex = 'id' + index;
+		var bndex = 'name' + index;
+
+		$.ajax({
+			type:"post",
+			url:"stock",
+			data:{"id":$("#" + idex + "").val(), "nums":$("#" + ndex + "").val()},
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					total = 0.0;
+					for(var i = 0; i < count; ++i){
+						var pstr = 'price' + i;
+						var nstr = 'num' + i;
+						total += $("#" + pstr + "").text() * $("#" + nstr + "").val();
+					} 
+					foot();
+				}else{
+					alert("《" + $("#" + bndex + "").text() + "》" + data.msg);
+					$("#" + ndex + "").val("1");
+				}
+			}
+		})
+
+	}
+</script>
+<script type="text/javascript">
+function foot(){
+	$("#sumid").empty();
+	var html = '';
+	html += '<h4>';
+	html += '总价：￥<span id="priceId">' + total + '</span>元';
+	html += '</h4>';
+	html += '<input class="input-chart" type="submit" name="submit" value=""/>';
+
+	$("#sumid").append($(html));
+}
+</script>
+
+
+<script type="text/javascript">
+	$("#orderId").submit(function(){
+		$.ajax({
+			type:"post",
+			url:"orders",
+			data:$("#orderId").serialize() + "&total=" + $("#priceId").text(),
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					window.location.href="shopping-success.html";
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	})
+</script>
+
+
+</body>
+</html>

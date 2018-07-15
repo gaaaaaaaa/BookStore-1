@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qianfeng.dao.IOrderItemDao">
+	
+	<resultMap type="orderItems" id="orderItemMapper">
+		<id property="id" column="id"/>
+		<result property="num" column="num"/>
+		
+		<!-- 嵌套结果 -->
+		<association property="orders" resultMap="com.qianfeng.dao.IOrderDao.orderMapper"></association>
+		<association property="books" resultMap="com.qianfeng.dao.IBookDao.bookMapper"></association>
+	</resultMap>
+	
+	<insert id="add" parameterType="orderItems">
+		insert into orderitems(orderId, bookId, num)
+		values(#{order.id}, #{book.id}, #{num})
+	</insert>
+	
+	<select id="findByIndex" parameterType="map" resultMap="orderItemMapper">
+		select item.*, o.*, b.*, u.* from orders o
+		INNER JOIN orderitems item
+		on o.id = item.orderId
+		INNER JOIN books b
+		on b.id = item.bookId
+		INNER JOIN user u
+		on u.id = o.buyerId
+		where u.username = #{name} and o.id
+		in 
+		(select t.id from
+		(select orders.* from orders  
+		INNER JOIN user on user.id = orders.buyerId 
+		where user.username = #{name}
+		<if test="state != null ">and orders.state=#{state}</if>
+		limit #{index}, #{size} ) 
+		t)
+	</select>
+		
+	<select id="findByOrderId" parameterType="string" resultMap="orderItemMapper">
+		SELECT
+			item.*,
+			o.*,
+			b.*,
+			u.* 
+		FROM
+			orders o
+			INNER JOIN orderitems item ON o.id = item.orderId
+			INNER JOIN books b ON b.id = item.bookId
+			INNER JOIN USER u ON u.id = o.buyerId 
+		WHERE
+			o.ordernum = #{id}
+	</select>
+		
+	<select id="findOrderByName" parameterType="string" resultType="int">
+		select count(1) from orderitems item
+		INNER JOIN books b
+		on b.id = item.bookId
+		INNER JOIN orders o
+		on o.id = item.orderId
+		where b.bookname = #{name}
+	</select>
+	
+	<delete id="deleteByName" parameterType="string">
+		DELETE 
+		FROM
+			orderitems 
+		WHERE
+			orderitems.orderId IN (
+		SELECT
+			id 
+		FROM
+			orders 
+		WHERE
+			orders.buyerId IN ( SELECT id FROM USER WHERE USER.username = #{name} ))
+	</delete>
+	<delete id="deleteById" parameterType="string">
+		DELETE 
+		FROM
+			orderitems 
+		WHERE
+			orderitems.orderId IN (
+		SELECT
+			id 
+		FROM
+			orders 
+		WHERE
+			orders.ordernum = #{id})
+	</delete>
+</mapper>

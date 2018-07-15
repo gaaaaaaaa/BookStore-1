@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>会员列表</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="style/adminStyle.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+<script src="js/public.js"></script>
+</head>
+<body>
+	<div class="wrap">
+		<div class="page-title">
+			<span class="modular fl"><i class="user"></i><em>用户列表</em></span>
+		</div>
+		<div class="operate">
+			<form>
+				<input id="searchName" type="text" class="textBox length-long" placeholder="输入用户昵称" />
+				<input type="button" value="查询" onclick="searchUser()" class="tdBtn" />
+			</form>
+		</div>
+		<table class="list-style Interlaced">
+			<tr>
+				<th>编号</th>
+				<th>用户昵称</th>
+				<th>邮件地址</th>
+				<th>账户锁定状态</th>
+				<th>管理员操作</th>
+			</tr>
+			<tbody id="tbid"></tbody>
+
+		</table>
+<!-- 		<div style="overflow: hidden;"> -->
+<!-- 			<div class="turnPage center fr"> -->
+<!-- 				<a>第一页</a> <a>1</a> <a>最后一页</a> -->
+<!-- 			</div> -->
+<!-- 		</div> -->
+	</div>
+
+
+<script type="text/javascript">
+	$(function() {
+		loadData(1);
+	})
+	function loadData(page) {
+		$.ajax({
+			type : "get",
+			url : "users/page/" + page,
+			dataType : "json",
+			success : function(data) {
+				if (data.code == 1) {
+					var infos = data.msg.pageInfos;
+
+					$("#tbid").empty();
+					$(infos).each(function(index, item) {
+						var html = '';
+						html += '<tr>';
+						html += '<td>';
+						html += '<span class="middle">' + item.id + '</span>';
+						html += '</td>';
+						html += '<td id="user'+ index +'" class="center">' + item.userName +'</td>';
+						html += '<td class="center">' + item.email +'</td>';
+						html += '<td id="islock' + index + '" class="center">' + item.isLock + '</td>';
+						html += '<td class="center"><input type="button" value="删除" onclick="deleteUser(' + index + ')"/>';
+						html += '<span> </span>';
+						if(item.isLock > 2){
+							html += '<input id="bul' + index + '" type="button" value="账户解锁" onclick="unLockUser(' + index + ')" class="btnStyle"/></td>';	
+						}else{
+							html += '<input type="button" disabled="disabled" value="账户解锁" onclick="unLockUser(' + index + ')" class="btnStyle"/></td>';
+						}
+						
+						html += '</tr>';
+
+						$("#tbid").append($(html));
+					})
+				} else {
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+
+<script type="text/javascript">
+	function deleteUser(index){
+		var udex = 'user' + index;
+		$.ajax({
+			type:"delete",
+			url:"deleteUser/" + document.getElementById(udex).innerHTML,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					//加载当前页面currentPage
+					loadData(1);
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+<script type="text/javascript">
+	function unLockUser(index){
+		var udex = 'user' + index;
+		var ldex = 'islock' + index;
+		var bdex = 'bul' + index;
+		$.ajax({
+			type:"put",
+			url:"unLockUser/" + document.getElementById(udex).innerHTML,
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					document.getElementById(ldex).innerHTML='<td id="islock' + index + '" class="center">' + 0 + '</td>';
+					document.getElementById(bdex).disabled=true;
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+<script type="text/javascript">
+	function searchUser(){
+		$.ajax({
+			type:"get",
+			url:"searchUser/" + $("#searchName").val(),
+			dataType:"json",
+			success:function(data){
+				if(data.code == 1){
+					var user = data.msg;
+
+					$("#tbid").empty();
+					var html = '';
+					html += '<tr>';
+					html += '<td>';
+					html += '<span class="middle">' + user.id + '</span>';
+					html += '</td>';
+					html += '<td id="user'+ 0 +'" class="center">' + user.userName +'</td>';
+					html += '<td class="center">' + user.email +'</td>';
+					html += '<td id="islock' + 0 + '" class="center">' + user.isLock + '</td>';
+					html += '<td class="center"><input type="button" value="删除" onclick="deleteUser(' + 0 + ')"/>';
+					html += '<span> </span>';
+					if(item.isLock > 2){
+						html += '<input id="bul' + 0 + '" type="button" value="账户解锁" onclick="unLockUser(' + 0 + ')" class="btnStyle"/></td>';	
+					}else{
+						html += '<input type="button" disabled="disabled" value="账户解锁" onclick="unLockUser(' + 0 + ')" class="btnStyle"/></td>';
+					}					html += '</tr>';
+					$("#tbid").append($(html));
+
+				}else{
+					alert(data.msg);
+				}
+			}
+		})
+	}
+</script>
+</body>
+</html>
