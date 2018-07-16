@@ -19,22 +19,37 @@
 	</insert>
 	
 	<select id="findByIndex" parameterType="map" resultMap="orderItemMapper">
-		select item.*, o.*, b.*, u.* from orders o
-		INNER JOIN orderitems item
-		on o.id = item.orderId
-		INNER JOIN books b
-		on b.id = item.bookId
-		INNER JOIN user u
-		on u.id = o.buyerId
-		where u.username = #{name} and o.id
-		in 
-		(select t.id from
-		(select orders.* from orders  
-		INNER JOIN user on user.id = orders.buyerId 
-		where user.username = #{name}
-		<if test="state != null ">and orders.state=#{state}</if>
-		limit #{index}, #{size} ) 
-		t)
+		SELECT
+			item.*,
+			o.*,
+			b.*,
+			u.* 
+		FROM
+			orders o
+			INNER JOIN orderitems item ON o.id = item.orderId
+			INNER JOIN books b ON b.id = item.bookId
+			INNER JOIN USER u ON u.id = o.buyerId 
+		WHERE
+			<if test = "name != 'root'" > u.username = #{name} and </if>
+			o.id IN (
+		SELECT
+			t.id 
+		FROM
+			(
+		SELECT
+			orders.* 
+		FROM
+			orders
+			INNER JOIN USER ON USER.id = orders.buyerId 
+		WHERE
+			1 = 1 <if test = "name != 'root'" > 
+			AND USER.username = #{name}</if>
+			<if test = "state != null " > 
+			AND orders.state = #{state}</if>
+			
+			LIMIT #{index}, #{size} )
+			t 
+			)
 	</select>
 		
 	<select id="findByOrderId" parameterType="string" resultMap="orderItemMapper">

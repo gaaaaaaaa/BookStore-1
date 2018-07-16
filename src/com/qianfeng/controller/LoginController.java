@@ -27,9 +27,7 @@ public class LoginController {
 		
 		try {
 			if(session.getAttribute("loginname") == null) {
-				bean.setCode(0);
-				RuntimeException exception =  new RuntimeException("ÄúÎ´µÇÂ¼");
-				bean.setMsg(exception.getMessage());
+				bean.setCode(1);
 			}else {
 				session.removeAttribute("loginname");
 				bean.setCode(1);
@@ -68,7 +66,11 @@ public class LoginController {
 				Cookie cookie = new Cookie("JSESSIONID", sessionId);
 				cookie.setMaxAge(1800);
 				response.addCookie(cookie);
-				bean.setCode(2);
+				if("root".equals(username)) {
+					bean.setCode(3);
+				}else {
+					bean.setCode(2);
+				}
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

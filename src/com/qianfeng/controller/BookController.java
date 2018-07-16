@@ -3,6 +3,8 @@ package com.qianfeng.controller;
 import java.io.File;
 import java.io.IOException;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,16 +27,18 @@ public class BookController {
 	@Autowired
 	private IBookService bookService;
 	
-	@Autowired
-	private IOrderService orderService;
-	
 	@RequestMapping(value="/books/page/{page}", method=RequestMethod.GET)
 	//参数注解表示从路径中取{}中的值
-	public @ResponseBody JsonBean findByPage(@PathVariable("page") Integer page, Integer state){
+	public @ResponseBody JsonBean findByPage(@PathVariable("page") Integer page, Integer state, HttpSession session){
 		
 		JsonBean bean = new JsonBean();
 		try {
 			PageBean<Books> infos = bookService.findByPage(page);
+			if((String) session.getAttribute("loginname") == null) {
+				infos.setIsLog(0);
+			}else {
+				infos.setIsLog(1);
+			}
 			bean.setCode(1);
 			bean.setMsg(infos);
 			

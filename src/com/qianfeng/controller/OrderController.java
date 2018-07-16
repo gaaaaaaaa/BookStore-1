@@ -1,14 +1,10 @@
 package com.qianfeng.controller;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.websocket.server.PathParam;
-
-import org.apache.catalina.ant.FindLeaksTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,6 +60,7 @@ public class OrderController {
 		String name = (String) session.getAttribute("loginname");
 		try {
 			PageBean<OrderItems> pageBean = orderService.findItemByIndex(name, page, state);
+			pageBean.setIsLog(1);
 			bean.setCode(1);
 			bean.setMsg(pageBean);
 		} catch (Exception e) {

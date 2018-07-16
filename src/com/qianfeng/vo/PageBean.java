@@ -9,9 +9,10 @@ public class PageBean<T> {
 	private Integer size = 4;//每页显示记录数
 	private Integer userSize = 10;//每页显示用户数
 	
-
 	private Integer count;    //总记录数
 	private List<T> pageInfos;//查询到的分页数据
+	
+	private Integer isLog;//是否登录
 	
 	public Integer getCurrentPage() {
 		return currentPage;
@@ -48,6 +49,12 @@ public class PageBean<T> {
 	}
 	public void setUserSize(Integer userSize) {
 		this.userSize = userSize;
+	}
+	public Integer getIsLog() {
+		return isLog;
+	}
+	public void setIsLog(Integer isLog) {
+		this.isLog = isLog;
 	}
 	
 }

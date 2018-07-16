@@ -98,7 +98,7 @@ public class OrderService implements IOrderService{
 	public PageBean<OrderItems> findItemByIndex(String name, Integer page, Integer state){
 		
 		if(StringUtil.isNullOrEmpty(name)) {
-			throw new RuntimeException("您未登录，不存在订单信息");
+			throw new RuntimeException("您未登录");
 		}
 		PageBean<OrderItems> pageInfo;
 		try {
