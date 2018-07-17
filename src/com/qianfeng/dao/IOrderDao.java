@@ -9,7 +9,9 @@ import com.qianfeng.entity.Orders;
 
 public interface IOrderDao extends IBaseDao<Orders>{
 
-	public int countOrder(String name);
+	public int countOrder();
+	
+	public int countOrderByName(String name);
 
 	public void deleteByName(String name);
 

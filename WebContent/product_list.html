@@ -114,7 +114,7 @@
 						html += '<span><em>'+item.stock+'</em><i>件</i></span>';
 						html += '</td>';
 						html += '<td class="center">';
-						html += '<a href="edit_product.html" title="编辑图书" ><span>编辑图书</span></a>';
+						html += '<a href="edit_product.html?'+item.id+'" title="编辑图书" ><span>编辑图书</span></a>';
 						html += '</td></tr>';
 						
 						$("#tbp").append($(html));

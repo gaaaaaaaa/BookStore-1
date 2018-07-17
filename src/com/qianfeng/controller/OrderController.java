@@ -61,8 +61,13 @@ public class OrderController {
 		try {
 			PageBean<OrderItems> pageBean = orderService.findItemByIndex(name, page, state);
 			pageBean.setIsLog(1);
-			bean.setCode(1);
-			bean.setMsg(pageBean);
+			if(pageBean.getPageInfos().isEmpty()) {
+				bean.setCode(0);
+				bean.setMsg("没有订单信息");
+			}else {
+				bean.setCode(1);
+				bean.setMsg(pageBean);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

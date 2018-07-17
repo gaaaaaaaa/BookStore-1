@@ -8,9 +8,6 @@ import com.qianfeng.entity.OrderItems;
 
 public interface IOrderItemDao extends IBaseDao<OrderItems>{
 
-	//查询订单明细
-	public List<OrderItems> findByIndex(Map<String, Object> info);
-	
 	public Integer findOrderByName(String name);
 
 	public void deleteByName(String name);
@@ -19,4 +16,10 @@ public interface IOrderItemDao extends IBaseDao<OrderItems>{
 
 	public List<OrderItems> findByOrderId(String id);
 
+	//前台查询订单
+	public List<OrderItems> findItemByIndex(Map<String, Object> map);
+
+	//后台查询订单明细
+	public List<OrderItems> findOrderByIndex(Map<String, Object> info);
+	
 }

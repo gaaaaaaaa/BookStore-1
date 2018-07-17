@@ -23,7 +23,7 @@ public class CartService implements ICartService {
 	public String addCart(String[] bookIds, String cartId) {
 		Set<String> set = new HashSet<>();
 		if (!StringUtil.isNullOrEmpty(cartId)) {
-			String[] split = cartId.split(",");
+			String[] split = cartId.split("#");
 			for (String v : split) {
 				set.add(v);
 			}
@@ -42,7 +42,7 @@ public class CartService implements ICartService {
 		}
 
 		for (String v : set) {
-			info += v + ",";
+			info += v + "#";
 		}
 		info = info.substring(0, info.length() - 1);
 		return info;
@@ -56,7 +56,7 @@ public class CartService implements ICartService {
 
 		try {
 			List<String> list = new ArrayList<>();
-			String[] split = ids.split(",");
+			String[] split = ids.split("#");
 			for(String info : split){
 				list.add(info);
 			}

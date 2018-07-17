@@ -19,7 +19,11 @@
 		values(#{orderNum}, #{totalPrice}, #{createDate}, 0, #{buyer.id})
 	</insert>
 	
-	<select id="countOrder" parameterType="String" resultType="Integer">
+	<select id="countOrder" resultType="Integer">
+		select count(1) from orders
+	</select>
+	
+	<select id="countOrderByName" parameterType="String" resultType="Integer">
 		select count(1) from orders o
 		INNER JOIN user u
 		on o.buyerId = u.id

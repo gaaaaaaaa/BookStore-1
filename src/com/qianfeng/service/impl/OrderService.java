@@ -104,8 +104,13 @@ public class OrderService implements IOrderService{
 		try {
 			pageInfo = new PageBean<>();
 			pageInfo.setCurrentPage(page);
-			
-			int count = orderDao.countOrder(name);
+			int count;
+			if("root".equals(name)) {
+				 count = orderDao.countOrder();
+			}
+			else {
+				 count = orderDao.countOrderByName(name);
+			}
 			pageInfo.setCount(count);
 			
 			int totalPage = 0;
@@ -116,7 +121,7 @@ public class OrderService implements IOrderService{
 				totalPage = count / pageInfo.getSize() + 1;
 			}
 			pageInfo.setTotalPage(totalPage);
-						
+			
 			Map<String, Object> map = new HashMap<>();
 			map.put("index", (page-1)*pageInfo.getSize());
 			map.put("size", pageInfo.getSize());
@@ -124,7 +129,13 @@ public class OrderService implements IOrderService{
 			if(state != 5) {
 				map.put("state", state);
 			}
-			List<OrderItems> items = orderItemDao.findByIndex(map);
+			
+			List<OrderItems> items;
+			if("root".equals(name)) {
+				items = orderItemDao.findOrderByIndex(map);
+			}else {
+				items = orderItemDao.findItemByIndex(map);
+			}
 			pageInfo.setPageInfos(items);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

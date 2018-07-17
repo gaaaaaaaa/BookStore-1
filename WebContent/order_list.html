@@ -4,6 +4,7 @@
 <title>订单列表</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="style/adminStyle.css" rel="stylesheet" type="text/css" />
+
 <script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
 <script type="text/javascript" src="js/common.js"></script>
 <script src="js/public.js"></script>
@@ -57,7 +58,7 @@
 							html += '<tr>';
 							html += '<td><a id="oid' + (index-1) +'" onclick="orderDetail(' + (index-1) + ')">' + infos[index-1].order.orderNum + '</a></td>';
 							html += '<td class="center"><span class="block">' + infos[index-1].order.createDate + '</span></td>';
-							html += '<td width="450"><span class="block">' + infos[index-1].order.buyer.userName + '</span></td>';
+							html += '<td width="300"><span class="block">' + infos[index-1].order.buyer.userName + '</span></td>';
 //	 						手机号、地址
 							html += '<td class="center"><span><i>￥</i><b>' + infos[index-1].order.totalPrice + '</b></span></td>';
 						  
@@ -107,8 +108,8 @@
 							html += '<tr>';
 							html += '<td><a id="oid' + index + '" onclick="orderDetail(' + index + ')">' + infos[index].order.orderNum + '</a></td>';
 							html += '<td class="center"><span class="block">' + infos[index].order.createDate + '</span></td>';
-							html += '<td width="450"><span class="block">' + infos[index].order.buyer.userName + '</span></td>';
-//	 						手机号、地址
+							html += '<td width="300"><span class="block">' + infos[index].order.buyer.userName + '</span></td>';
+	 						//手机号、地址
 							html += '<td class="center"><span><i>￥</i><b>' + infos[index].order.totalPrice + '</b></span></td>';
 							
 							if(infos[index].order.state == 0){
@@ -150,7 +151,7 @@
 							$("#tbid").append($(html));
 						}
 					})
-		    		pagebind(data.msg, state);
+// 		    		pagebind(data.msg, state);
 				}else{
 					alert(data.msg);
 				}

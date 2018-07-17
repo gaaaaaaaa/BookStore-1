@@ -17,7 +17,7 @@
 	</select>
 	
 	<select id="findByIndex" parameterType="map" resultMap="bookMapper">
-		select id, bookname, price, stock, img from books limit #{index}, #{size}
+		select id, bookname, price, stock, img from books where books.isdelete = 0 limit #{index}, #{size}
 	</select>
 	
 	<select id="findDelByIndex" parameterType="map" resultMap="bookMapper">

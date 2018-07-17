@@ -18,7 +18,7 @@
 		values(#{order.id}, #{book.id}, #{num})
 	</insert>
 	
-	<select id="findByIndex" parameterType="map" resultMap="orderItemMapper">
+	<select id="findItemByIndex" parameterType="map" resultMap="orderItemMapper">
 		SELECT
 			item.*,
 			o.*,
@@ -30,7 +30,8 @@
 			INNER JOIN books b ON b.id = item.bookId
 			INNER JOIN USER u ON u.id = o.buyerId 
 		WHERE
-			<if test = "name != 'root'" > u.username = #{name} and </if>
+			u.username = #{name}
+		AND
 			o.id IN (
 		SELECT
 			t.id 
@@ -41,15 +42,33 @@
 		FROM
 			orders
 			INNER JOIN USER ON USER.id = orders.buyerId 
-		WHERE
-			1 = 1 <if test = "name != 'root'" > 
-			AND USER.username = #{name}</if>
+		WHERE 
+			USER.username = #{name}
 			<if test = "state != null " > 
 			AND orders.state = #{state}</if>
 			
 			LIMIT #{index}, #{size} )
 			t 
 			)
+	</select>
+		
+		<select id="findOrderByIndex" parameterType="map" resultMap="orderItemMapper">
+		SELECT
+			item.*,
+			o.*,
+			b.*,
+			u.* 
+		FROM
+			orders o
+			INNER JOIN orderitems item ON o.id = item.orderId
+			INNER JOIN books b ON b.id = item.bookId
+			INNER JOIN USER u ON u.id = o.buyerId 
+		WHERE
+			1 = 1
+			<if test = "state != null " > 
+			AND o.state = #{state}</if>
+			
+<!-- 			LIMIT #{index}, #{size} -->
 	</select>
 		
 	<select id="findByOrderId" parameterType="string" resultMap="orderItemMapper">

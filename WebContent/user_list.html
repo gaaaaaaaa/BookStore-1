@@ -139,7 +139,7 @@
 					html += '<td id="islock' + 0 + '" class="center">' + user.isLock + '</td>';
 					html += '<td class="center"><input type="button" value="删除" onclick="deleteUser(' + 0 + ')"/>';
 					html += '<span> </span>';
-					if(item.isLock > 2){
+					if(user.isLock > 2){
 						html += '<input id="bul' + 0 + '" type="button" value="账户解锁" onclick="unLockUser(' + 0 + ')" class="btnStyle"/></td>';	
 					}else{
 						html += '<input type="button" disabled="disabled" value="账户解锁" onclick="unLockUser(' + 0 + ')" class="btnStyle"/></td>';
